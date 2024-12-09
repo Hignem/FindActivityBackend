@@ -9,14 +9,14 @@ namespace FindActivityApi.DTO
         public String Name { get; set; } = "";
 
         [Required]
-        public String Surnname { get; set; } = "";
+        public String Surname { get; set; } = "";
 
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = "";
+        //[Required]
+        //[EmailAddress]
+        //public string Email { get; set; } = "";
 
-        [Required]
-        public String Password { get; set; } = "";
+        //[Required]
+        //public String Password { get; set; } = "";
 
     }
 }

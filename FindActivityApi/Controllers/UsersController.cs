@@ -25,9 +25,9 @@ namespace FindActivityApi.Controllers
             return new UserResponse()
             {
                 Name = user.Name,
-                Surnname = user.Surnname,
+                Surname = user.Surname,
                 CreatedAt = user.CreatedAt,
-                Email = user.Email,
+                //Email = user.Email,
                 LastLogin = user.LastLogin,
                 LatitudeX = user.LatitudeX,
                 LongitudeY = user.LongitudeY,
@@ -127,9 +127,9 @@ namespace FindActivityApi.Controllers
         {
             var user = new User() { 
             Name = userRequest.Name,
-            Email = userRequest.Email,
-            Password = userRequest.Password,
-            Surnname = userRequest.Surnname,
+            //Email = userRequest.Email,
+            //Password = userRequest.Password,
+            Surname = userRequest.Surname,
             };
             _context.Users.Add(user);
             _context.SaveChanges();

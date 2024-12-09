@@ -10,9 +10,9 @@ namespace FindActivityApi.DTO
         public String Name { get; set; } = "";
 
 
-        public String Surnname { get; set; } = "";
+        public String Surname { get; set; } = "";
 
-        public string Email { get; set; } = "";
+        //public string Email { get; set; } = "";
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

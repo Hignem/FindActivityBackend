@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace FindActivityApi.Models
 {
-    public class User
+    public class User : IdentityUser
     {
         [Key]
         public int UserId { get; set; }
@@ -11,14 +12,7 @@ namespace FindActivityApi.Models
         public String Name { get; set; } = "";
         
         [Required]
-        public String Surnname { get; set; } = "";
-
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = "";
-
-        [Required]
-        public String Password { get; set; } = "";
+        public String Surname { get; set; } = "";
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
