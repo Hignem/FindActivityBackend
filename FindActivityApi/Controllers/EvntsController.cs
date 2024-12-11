@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FindActivityApi.Models;
 using FindActivityApi.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FindActivityApi.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class EvntsController : ControllerBase

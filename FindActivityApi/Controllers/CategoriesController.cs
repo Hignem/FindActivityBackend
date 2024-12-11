@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using FindActivityApi.Models;
 using FindActivityApi.DTO;
 using Microsoft.AspNetCore.Authorization;
+using System.Text.Json;
 
 namespace FindActivityApi.Controllers
 {
@@ -22,7 +23,18 @@ namespace FindActivityApi.Controllers
         {
             _context = context;
         }
+        [HttpPost("addcategorywithactivities")]
+        public async Task<IActionResult> AddCategoryWithActivities([FromBody] CategoryWithActivitiesRequest request)
+        {
+            // Wywołanie procedury składowanej
+            await _context.Database.ExecuteSqlRawAsync(
+                "CALL AddCategoryWithActivities({0}, {1})",
+                request.CategoryName,
+                request.Activities.ToArray()
+            );
 
+            return Ok(new { message = "Kategoria i aktywności zostały pomyślnie dodane." });
+        }
         private static CategoryResponse toCategoryResponse(Category category)
         {
             return new CategoryResponse()
