@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using FindActivityApi.Models;
 using FindActivityApi.DTO;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 
 namespace FindActivityApi.Controllers
 {
@@ -75,14 +76,17 @@ namespace FindActivityApi.Controllers
         // PUT: api/Comments/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutComment(int id, Comment comment)
+        public async Task<IActionResult> PutComment(int id, CommentRequest commentRequest)
         {
-            if (id != comment.CommentId)
+            var comment = await _context.Comments.FindAsync(id);
+            if (comment == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(comment).State = EntityState.Modified;
+            comment.EvntId = commentRequest.EvntId;
+            comment.UserId = commentRequest.UserId;
+            comment.Content = commentRequest.Content;
 
             try
             {

@@ -84,14 +84,15 @@ namespace FindActivityApi.Controllers
         // PUT: api/Categories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, Category category)
+        public async Task<IActionResult> PutCategory(int id, CategoryRequest categoryRequest)
         {
-            if (id != category.CategoryId)
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(category).State = EntityState.Modified;
+            category.CategoryName = categoryRequest.CategoryName;
 
             try
             {

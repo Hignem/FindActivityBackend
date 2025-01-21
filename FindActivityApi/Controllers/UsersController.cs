@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using FindActivityApi.Models;
 using FindActivityApi.DTO;
 using Microsoft.AspNetCore.Authorization;
+using System.Xml.Linq;
 
 namespace FindActivityApi.Controllers
 {
@@ -86,14 +87,16 @@ namespace FindActivityApi.Controllers
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutUser(int id, UserRequest userRequest)
         {
-            if (id != user.UserId)
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            user.Name = userRequest.Name;
+            user.Surname = userRequest.Surname;
 
             try
             {
@@ -124,7 +127,7 @@ namespace FindActivityApi.Controllers
 
         //    return CreatedAtAction("GetUser", new { id = user.UserId }, user);
         //}
-        [HttpPost]
+/*        [HttpPost]
         public void PostUser(UserRequest userRequest)
         {
             var user = new User() { 
@@ -135,7 +138,7 @@ namespace FindActivityApi.Controllers
             };
             _context.Users.Add(user);
             _context.SaveChanges();
-        }
+        }*/
 
         // DELETE: api/Users/5
         [HttpDelete("{id}")]

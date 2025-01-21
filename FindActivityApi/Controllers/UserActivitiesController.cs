@@ -74,34 +74,34 @@ namespace FindActivityApi.Controllers
         }
         // PUT: api/UserActivities/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserActivity(int id, UserActivity userActivity)
-        {
-            if (id != userActivity.UserActivityId)
-            {
-                return BadRequest();
-            }
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> PutUserActivity(int id, UserActivity userActivity)
+        //{
+        //    if (id != userActivity.UserActivityId)
+        //    {
+        //        return BadRequest();
+        //    }
 
-            _context.Entry(userActivity).State = EntityState.Modified;
+        //    _context.Entry(userActivity).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserActivityExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!UserActivityExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
 
         // POST: api/UserActivities
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

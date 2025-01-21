@@ -75,15 +75,46 @@ namespace FindActivityApi.Controllers
 
         // PUT: api/Activities/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> PutActivity(int id, Activity activity)
+        //{
+        //    if (id != activity.ActivityId)
+        //    {
+        //        return BadRequest();
+        //    }
+
+        //    _context.Entry(activity).State = EntityState.Modified;
+
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!ActivityExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
+
+        //    return NoContent();
+        //}
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutActivity(int id, Activity activity)
+        public async Task<IActionResult> PutActivity(int id, ActivityRequest activityRequest)
         {
-            if (id != activity.ActivityId)
+            var activity = await _context.Activities.FindAsync(id);
+            if (activity == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(activity).State = EntityState.Modified;
+            activity.ActivityName = activityRequest.ActivityName;
+            activity.CategoryId = activityRequest.CategoryId;
 
             try
             {
@@ -103,7 +134,6 @@ namespace FindActivityApi.Controllers
 
             return NoContent();
         }
-
         // POST: api/Activities
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         /*        [HttpPost]

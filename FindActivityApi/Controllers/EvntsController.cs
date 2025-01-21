@@ -58,14 +58,18 @@ namespace FindActivityApi.Controllers
         }
         // PUT: api/Evnts/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutEvnt(int id, Evnt evnt)
+        public async Task<IActionResult> PutEvnt(int id, EvntRequest evntRequest)
         {
-            if (id != evnt.EvntId)
+            var evnt = await _context.Evnts.FindAsync(id);
+            if (evnt == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(evnt).State = EntityState.Modified;
+            evnt.UserId = evntRequest.UserId;
+            evnt.ActivityId = evntRequest.ActivityId;
+            evnt.Title = evntRequest.Title;
+            evnt.Content = evntRequest.Content;
 
             try
             {
