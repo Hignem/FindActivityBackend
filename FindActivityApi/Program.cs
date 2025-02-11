@@ -84,7 +84,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseStaticFiles();
 app.UseAuthentication(); //u¿ywanie autoryzacji JWT
 app.UseAuthorization();
 

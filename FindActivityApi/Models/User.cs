@@ -19,7 +19,7 @@ namespace FindActivityApi.Models
         public DateTime? LastLogin { get; set; } = null;
         public double? LatitudeX { get; set; }
         public double? LongitudeY { get; set; }
-        public string ProfilePictureBase64 { get; set; } = "";
+        public string ProfileImagePath { get; set; } = "";
         public ICollection<UserActivity> UserActivities { get; set; }
         public ICollection<Evnt> Evnts { get; set; }
         public ICollection<Comment> Comments { get; set; }

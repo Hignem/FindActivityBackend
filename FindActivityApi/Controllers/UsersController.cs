@@ -9,6 +9,7 @@ using FindActivityApi.Models;
 using FindActivityApi.DTO;
 using Microsoft.AspNetCore.Authorization;
 using System.Xml.Linq;
+using System.Security.Claims;
 
 namespace FindActivityApi.Controllers
 {
@@ -34,10 +35,63 @@ namespace FindActivityApi.Controllers
                 LastLogin = user.LastLogin,
                 LatitudeX = user.LatitudeX,
                 LongitudeY = user.LongitudeY,
-                ProfilePictureBase64 = user.ProfilePictureBase64,
+                ProfileImagePath = user.ProfileImagePath,
                 UserId = user.UserId
 
             };
+        }
+        [HttpPost("upload-profile-image")]
+        public async Task<IActionResult> UploadProfileImage(IFormFile file)
+        {
+            // sprawdzenie czy uzytkownik przeslal zdjecie
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("Plik jest pusty.");
+            }
+
+            //przypisanie docelowej sciezki
+            var uploadsFolder = Path.Combine("wwwroot", "images", "profiles");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var imagePath = $"/images/profiles/{fileName}";
+
+            // Zapisujemy ścieżkę w bazie
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("Użytkownik nie znaleziony.");
+            }
+
+            //deleting old profile picture
+            if (!string.IsNullOrEmpty(user.ProfileImagePath))
+            {
+                var oldImagePath = Path.Combine("wwwroot", user.ProfileImagePath.TrimStart('/'));
+
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    try
+                    {
+                        System.IO.File.Delete(oldImagePath); 
+                    }
+                    catch (Exception ex)
+                    {
+                        return StatusCode(500, "Błąd przy usuwaniu starego zdjęcia.");
+                    }
+                }
+            }
+            user.ProfileImagePath = imagePath;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { imagePath });
         }
 
         // GET: api/Users

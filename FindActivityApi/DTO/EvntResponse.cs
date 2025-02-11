@@ -17,7 +17,10 @@ namespace FindActivityApi.DTO
         public string Content { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string EvntImagePath { get; set; } = "";
         public string CreatedByFirstName { get; set; }
         public string CreatedByLastName { get; set; }
+
+
     }
 }

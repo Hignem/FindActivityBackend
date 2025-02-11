@@ -19,6 +19,6 @@ namespace FindActivityApi.DTO
         public DateTime? LastLogin { get; set; } = null;
         public double? LatitudeX { get; set; }
         public double? LongitudeY { get; set; }
-        public string ProfilePictureBase64 { get; set; } = "";
+        public string ProfileImagePath { get; set; } = "";
     }
 }
