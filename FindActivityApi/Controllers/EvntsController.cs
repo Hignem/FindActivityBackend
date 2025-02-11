@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using FindActivityApi.Models;
 using FindActivityApi.DTO;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace FindActivityApi.Controllers
 {
@@ -35,6 +37,31 @@ namespace FindActivityApi.Controllers
 
             };
         }
+        [HttpGet("Favourites")]
+        public async Task<IActionResult> GetFavouritesEvents()
+        {
+
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            var observedEvents = await _context.Evnts
+                .Where(e => _context.UserActivities
+                    .Any(ua => ua.UserId == userId && ua.ActivityId == e.ActivityId))
+                .Select(e => new EvntResponse
+                {
+                    EvntId = e.EvntId,
+                    UserId = e.UserId,
+                    ActivityId = e.ActivityId,
+                    Title = e.Title,
+                    Content = e.Content,
+                    CreatedAt = e.CreatedAt,
+                    CreatedByFirstName = e.User.Name,
+                    CreatedByLastName = e.User.Surname,
+                })
+                .ToListAsync();
+
+            return Ok(observedEvents);
+        }
+
         // GET: api/Evnts
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EvntResponse>>> GetEvnts()
