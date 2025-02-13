@@ -20,6 +20,7 @@ namespace FindActivityApi.DTO
         public string EvntImagePath { get; set; } = "";
         public string CreatedByFirstName { get; set; }
         public string CreatedByLastName { get; set; }
+        public string ProfileImagePath { get; set; } = "";
 
 
     }
