@@ -9,6 +9,7 @@ using FindActivityApi.Models;
 using FindActivityApi.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 namespace FindActivityApi.Controllers
 {
@@ -34,12 +35,24 @@ namespace FindActivityApi.Controllers
                 CreatedAt = comment.CreatedAt
             };
         }
-        // GET: api/Comments
-/*        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Comment>>> GetComments()
+
+        [HttpGet("{idEvent}/count")]
+        public async Task<IActionResult> GetCommentCount(int idEvent)
         {
-            return await _context.Comments.ToListAsync();
-        }*/
+            var commentCount = await _context.Comments
+                .CountAsync(l => l.EvntId == idEvent);
+
+            return Ok(new
+            {
+                CommentCount = commentCount,
+            });
+        }
+        // GET: api/Comments
+        /*        [HttpGet]
+                public async Task<ActionResult<IEnumerable<Comment>>> GetComments()
+                {
+                    return await _context.Comments.ToListAsync();
+                }*/
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CommentResponse>>> GetComments()
         {

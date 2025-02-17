@@ -54,6 +54,7 @@ namespace FindActivityApi.Controllers
                     Title = e.Title,
                     Content = e.Content,
                     CreatedAt = e.CreatedAt,
+                    DateOfEvnt = e.DateOfEvnt,
                     EvntImagePath = e.EvntImagePath,
                     CreatedByFirstName = e.User.Name,
                     CreatedByLastName = e.User.Surname,

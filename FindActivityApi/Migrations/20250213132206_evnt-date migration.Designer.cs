@@ -3,6 +3,7 @@ using System;
 using FindActivityApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FindActivityApi.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250213132206_evnt-date migration")]
+    partial class evntdatemigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -130,52 +133,6 @@ namespace FindActivityApi.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Evnts");
-                });
-
-            modelBuilder.Entity("FindActivityApi.Models.EvntGoing", b =>
-                {
-                    b.Property<int>("EvntGoingId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("EvntGoingId"));
-
-                    b.Property<int>("EvntId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("EvntGoingId");
-
-                    b.HasIndex("EvntId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("EvntGoing");
-                });
-
-            modelBuilder.Entity("FindActivityApi.Models.EvntLikes", b =>
-                {
-                    b.Property<int>("EvntLikesId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("EvntLikesId"));
-
-                    b.Property<int>("EvntId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("EvntLikesId");
-
-                    b.HasIndex("EvntId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("EvntLikes");
                 });
 
             modelBuilder.Entity("FindActivityApi.Models.User", b =>
@@ -332,44 +289,6 @@ namespace FindActivityApi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FindActivityApi.Models.EvntGoing", b =>
-                {
-                    b.HasOne("FindActivityApi.Models.Evnt", "Evnt")
-                        .WithMany("EvntGoing")
-                        .HasForeignKey("EvntId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FindActivityApi.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Evnt");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("FindActivityApi.Models.EvntLikes", b =>
-                {
-                    b.HasOne("FindActivityApi.Models.Evnt", "Evnt")
-                        .WithMany("EvntLikes")
-                        .HasForeignKey("EvntId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FindActivityApi.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Evnt");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("FindActivityApi.Models.UserActivity", b =>
                 {
                     b.HasOne("FindActivityApi.Models.Activity", "Activity")
@@ -404,10 +323,6 @@ namespace FindActivityApi.Migrations
             modelBuilder.Entity("FindActivityApi.Models.Evnt", b =>
                 {
                     b.Navigation("Comments");
-
-                    b.Navigation("EvntGoing");
-
-                    b.Navigation("EvntLikes");
                 });
 
             modelBuilder.Entity("FindActivityApi.Models.User", b =>
