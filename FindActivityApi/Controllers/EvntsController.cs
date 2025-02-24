@@ -37,13 +37,13 @@ namespace FindActivityApi.Controllers
 
             };
         }
-        [HttpGet("Favourites")]
-        public async Task<IActionResult> GetFavouritesEvents()
+        [HttpGet("Favourites/{sortBy}")]
+        public async Task<IActionResult> GetFavouritesEvents(string sortBy)
         {
 
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-            var observedEvents = await _context.Evnts
+            var observedEvents = _context.Evnts
                 .Where(e => _context.UserActivities
                     .Any(ua => ua.UserId == userId && ua.ActivityId == e.ActivityId))
                 .Select(e => new EvntResponse
@@ -59,10 +59,26 @@ namespace FindActivityApi.Controllers
                     CreatedByFirstName = e.User.Name,
                     CreatedByLastName = e.User.Surname,
                     ProfileImagePath = e.User.ProfileImagePath
-                })
-                .ToListAsync();
+                });
 
-            return Ok(observedEvents);
+            if (sortBy == "newest")
+            {
+                observedEvents = observedEvents.OrderByDescending(e => e.CreatedAt);
+            }
+            if (sortBy == "closetoyou")
+            {
+                observedEvents = observedEvents.OrderByDescending(e => e.CreatedAt);
+            }
+            else if (sortBy == "upcoming")
+            {
+                observedEvents = observedEvents
+                    .Where(e => e.DateOfEvnt >= DateTime.UtcNow)
+                    .OrderBy(e => e.DateOfEvnt); 
+            }
+
+            var observedEventsEnd = await observedEvents.ToListAsync();
+
+            return Ok(observedEventsEnd);
         }
 
         // GET: api/Evnts
