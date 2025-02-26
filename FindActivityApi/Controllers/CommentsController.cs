@@ -53,12 +53,25 @@ namespace FindActivityApi.Controllers
                 {
                     return await _context.Comments.ToListAsync();
                 }*/
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<CommentResponse>>> GetComments()
+        [HttpGet("{evntId}")]
+        public async Task<ActionResult<IEnumerable<CommentResponse>>> GetComments(int evntId)
         {
-            return await _context.Comments.Select(
-                comment => toCommentResponse(comment)
-                ).ToListAsync();
+            var comments = await _context.Comments
+                .Where(c => c.EvntId == evntId)
+                .Select(c => new CommentResponse
+                {
+                    CommentId = c.CommentId,
+                    EvntId = c.EvntId,
+                    UserId = c.UserId,
+                    Content = c.Content,
+                    CreatedAt = c.CreatedAt,
+                    ProfileImagePath = c.User.ProfileImagePath,
+                    CreatedByFirstName = c.User.Name,
+                    CreatedBySurName = c.User.Surname,
+                })
+                .ToListAsync();
+
+            return Ok(comments);
         }
 
         // GET: api/Comments/5
@@ -74,23 +87,24 @@ namespace FindActivityApi.Controllers
 
             return comment;
         }*/
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CommentResponse>> GetComment(int id)
-        {
-            var comment = await _context.Comments.FindAsync(id);
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<CommentResponse>> GetComment(int id)
+        //{
+        //    var comment = await _context.Comments.FindAsync(id);
 
-            if (comment == null)
-            {
-                return NotFound();
-            }
-            CommentResponse commentResponse = toCommentResponse(comment);
-            return commentResponse;
-        }
+        //    if (comment == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    CommentResponse commentResponse = toCommentResponse(comment);
+        //    return commentResponse;
+        //}
         // PUT: api/Comments/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutComment(int id, CommentRequest commentRequest)
         {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var comment = await _context.Comments.FindAsync(id);
             if (comment == null)
             {
@@ -98,7 +112,7 @@ namespace FindActivityApi.Controllers
             }
 
             comment.EvntId = commentRequest.EvntId;
-            comment.UserId = commentRequest.UserId;
+            comment.UserId = userId;
             comment.Content = commentRequest.Content;
 
             try
@@ -134,10 +148,12 @@ namespace FindActivityApi.Controllers
         [HttpPost]
         public void PostComment(CommentRequest commentRequest)
         {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
             var comment = new Comment()
             {
                 EvntId = commentRequest.EvntId,
-                UserId = commentRequest.UserId,
+                UserId = userId,
                 Content = commentRequest.Content,
             };
             _context.Comments.Add(comment);

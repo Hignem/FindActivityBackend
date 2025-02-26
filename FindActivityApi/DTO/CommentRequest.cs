@@ -10,9 +10,6 @@ namespace FindActivityApi.DTO
         [ForeignKey("Evnt")]
         public int EvntId { get; set; }
 
-        [ForeignKey("User")]
-        public int UserId { get; set; }
-
         public string Content { get; set; }
     }
 }
