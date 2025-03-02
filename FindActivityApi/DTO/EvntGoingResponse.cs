@@ -6,11 +6,9 @@ namespace FindActivityApi.DTO
 {
     public class EvntGoingResponse
     {
-        public int EvntLikesId { get; set; }
-
-        public int EvntId { get; set; }
-
-        public int UserId { get; set; }
+        public string ProfileImagePath { get; set; } = "";
+        public string CreatedByFirstName { get; set; }
+        public string CreatedBySurName { get; set; }
 
     }
 }

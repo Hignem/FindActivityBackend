@@ -43,6 +43,23 @@ namespace FindActivityApi.Controllers
             });
         }
 
+        [HttpGet("{evntId}/likesInfoList")]
+        public async Task<ActionResult<IEnumerable<EvntLikesResponse>>> GetEventLikesList(int evntId)
+        {
+
+            var likes = await _context.EvntLikes
+                .Where(l => l.EvntId == evntId)
+                .Select(c =>  new EvntLikesResponse
+                {
+                    ProfileImagePath = c.User.ProfileImagePath,
+                    CreatedByFirstName = c.User.Name,
+                    CreatedBySurName = c.User.Surname,
+                })
+                .ToListAsync();
+
+            return Ok(likes);
+        }
+
         [HttpPost("{idEvent}")]
         public void AddLike(int idEvent)
         {

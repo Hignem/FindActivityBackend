@@ -43,6 +43,23 @@ namespace FindActivityApi.Controllers
             });
         }
 
+        [HttpGet("{evntId}/goingInfoList")]
+        public async Task<ActionResult<IEnumerable<EvntGoingResponse>>> GetEventGoingList(int evntId)
+        {
+
+            var going = await _context.EvntGoing
+                .Where(l => l.EvntId == evntId)
+                .Select(c => new EvntGoingResponse
+                {
+                    ProfileImagePath = c.User.ProfileImagePath,
+                    CreatedByFirstName = c.User.Name,
+                    CreatedBySurName = c.User.Surname,
+                })
+                .ToListAsync();
+
+            return Ok(going);
+        }
+
         [HttpPost("{idEvent}")]
         public void AddGoing(int idEvent)
         {
