@@ -25,6 +25,9 @@ namespace FindActivityApi.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime DateOfEvnt { get; set; } 
         public string EvntImagePath { get; set; } = "";
+
+        public double LatitudeX { get; set; }
+        public double LongitudeY { get; set; }
         public ICollection<Comment> Comments { get; set; }
         public ICollection<EvntLikes> EvntLikes { get; set; }
         public ICollection<EvntGoing> EvntGoing { get; set; }

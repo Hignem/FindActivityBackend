@@ -56,6 +56,8 @@ namespace FindActivityApi.Controllers
                     CreatedAt = e.CreatedAt,
                     DateOfEvnt = e.DateOfEvnt,
                     EvntImagePath = e.EvntImagePath,
+                    LatitudeX = e.LatitudeX,
+                    LongitudeY = e.LongitudeY,
                     CreatedByFirstName = e.User.Name,
                     CreatedByLastName = e.User.Surname,
                     ProfileImagePath = e.User.ProfileImagePath

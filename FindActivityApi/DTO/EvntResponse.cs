@@ -19,6 +19,8 @@ namespace FindActivityApi.DTO
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime DateOfEvnt { get; set; } 
         public string EvntImagePath { get; set; } = "";
+        public double LatitudeX { get; set; }
+        public double LongitudeY { get; set; }
         public string CreatedByFirstName { get; set; }
         public string CreatedByLastName { get; set; }
         public string ProfileImagePath { get; set; } = "";

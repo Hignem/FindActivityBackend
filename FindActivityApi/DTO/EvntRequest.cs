@@ -19,5 +19,8 @@ namespace FindActivityApi.DTO
 
         public string Content { get; set; }
 
+        public double LatitudeX { get; set; }
+        public double LongitudeY { get; set; }
+
     }
 }
