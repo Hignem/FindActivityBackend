@@ -73,6 +73,28 @@ namespace FindActivityApi.Controllers
             return activityResponse;
         }
 
+        [HttpGet("category/{categoryid}")]
+        public async Task<ActionResult<ActivityResponse>> GetActivitiesFromCategory(int categoryid)
+        {
+            var activities = await _context.Activities
+            .Where(c => c.CategoryId == categoryid)
+            .Select(c => new ActivityResponse
+            {
+                ActivityId = c.ActivityId,
+                ActivityName = c.ActivityName,
+                CategoryId = c.CategoryId
+            })
+            .ToListAsync();
+
+            if (activities == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(activities);
+
+        }
+
         // PUT: api/Activities/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         //[HttpPut("{id}")]
