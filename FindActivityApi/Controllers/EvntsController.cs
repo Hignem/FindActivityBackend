@@ -19,7 +19,6 @@ namespace FindActivityApi.Controllers
     public class EvntsController : ControllerBase
     {
         private readonly ApiDbContext _context;
-
         public EvntsController(ApiDbContext context)
         {
             _context = context;
@@ -114,7 +113,7 @@ namespace FindActivityApi.Controllers
                 return NotFound();
             }
 
-            evnt.UserId = evntRequest.UserId;
+            //evnt.UserId = evntRequest.UserId;
             evnt.ActivityId = evntRequest.ActivityId;
             evnt.Title = evntRequest.Title;
             evnt.Content = evntRequest.Content;
@@ -139,18 +138,83 @@ namespace FindActivityApi.Controllers
         }
         // POST: api/Evnts
         [HttpPost]
-        public void PostEvnt(EvntRequest evntRequest)
+        public IActionResult PostEvnt(EvntRequest evntRequest)
         {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
             var evnt = new Evnt()
             {
-                UserId = evntRequest.UserId,
+                UserId = userId,
                 ActivityId = evntRequest.ActivityId,
                 Title = evntRequest.Title,
                 Content = evntRequest.Content,
+                DateOfEvnt = evntRequest.DateOfEvnt,
+                LatitudeX = evntRequest.LatitudeX,
+                LongitudeY = evntRequest.LongitudeY,
+
             };
             _context.Evnts.Add(evnt);
             _context.SaveChanges();
+
+            return Ok(evnt.EvntId);
         }
+
+        [HttpPut("upload-event-image")]
+        public async Task<IActionResult> UploadEventImage([FromForm] int evntId, IFormFile file)
+        {
+
+
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("Plik jest pusty.");
+            }
+
+            // Tworzenie folderu jeśli nie istnieje
+            var uploadsFolder = Path.Combine("wwwroot", "images", "evnts");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var imagePath = $"/images/evnts/{fileName}";
+
+            // Pobieranie wydarzenia z bazy
+            var evnt = await _context.Evnts.FindAsync(evntId);
+            if (evnt == null)
+            {
+                return NotFound("Wydarzenie nie zostało znalezione.");
+            }
+
+            // Usuwanie starego zdjęcia
+            if (!string.IsNullOrEmpty(evnt.EvntImagePath))
+            {
+                var oldImagePath = Path.Combine("wwwroot", evnt.EvntImagePath.TrimStart('/'));
+
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    try
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                    catch (Exception)
+                    {
+                        return StatusCode(500, "Błąd przy usuwaniu starego zdjęcia.");
+                    }
+                }
+            }
+
+            // Zapis nowej ścieżki
+            evnt.EvntImagePath = imagePath;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { imagePath });
+        }
+
         // DELETE: api/Evnts/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEvnt(int id)

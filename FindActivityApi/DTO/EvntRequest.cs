@@ -7,9 +7,9 @@ namespace FindActivityApi.DTO
     public class EvntRequest
     {
 
-        [Required]
-        [ForeignKey("User")]
-        public int UserId { get; set; }
+        //[Required]
+        //[ForeignKey("User")]
+        //public int UserId { get; set; }
 
         [ForeignKey("Activity")]
         public int ActivityId { get; set; }
@@ -19,6 +19,7 @@ namespace FindActivityApi.DTO
 
         public string Content { get; set; }
 
+        public DateTime DateOfEvnt { get; set; }
         public double LatitudeX { get; set; }
         public double LongitudeY { get; set; }
 
