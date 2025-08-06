@@ -50,7 +50,16 @@ namespace FindActivityApi.Controllers
             if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
             {
                 var token = GenerateJwtToken(user);
-                return Ok(new { token });
+
+                var userInformation = new
+                {
+                    id = user.Id,
+                    name = user.Name,
+                    surname = user.Surname,
+                    email = user.Email,
+                    profileImagePath = user.ProfileImagePath,
+                };
+                return Ok(new { token, user = userInformation });
             }
 
             return Unauthorized();
