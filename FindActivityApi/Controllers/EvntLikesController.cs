@@ -25,6 +25,7 @@ namespace FindActivityApi.Controllers
             _context = context;
         }
 
+        // imp!!!
         [HttpGet("{idEvent}/likesInfo")]
         public async Task<IActionResult> GetEventLikes(int idEvent)
         {
@@ -43,6 +44,7 @@ namespace FindActivityApi.Controllers
             });
         }
 
+        // imp!!!
         [HttpGet("{evntId}/likesInfoList")]
         public async Task<ActionResult<IEnumerable<EvntLikesResponse>>> GetEventLikesList(int evntId)
         {
@@ -60,6 +62,7 @@ namespace FindActivityApi.Controllers
             return Ok(likes);
         }
 
+        // imp!!!
         [HttpPost("{idEvent}")]
         public void AddLike(int idEvent)
         {
@@ -73,6 +76,8 @@ namespace FindActivityApi.Controllers
             _context.EvntLikes.Add(evntLikes);
             _context.SaveChanges();
         }
+
+        // imp!!!
         // DELETE: api/Comments/5
         [HttpDelete("{idEvent}")]
         public async Task<IActionResult> DeleteLike(int idEvent)

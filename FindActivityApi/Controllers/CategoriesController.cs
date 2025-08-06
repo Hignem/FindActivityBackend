@@ -23,6 +23,7 @@ namespace FindActivityApi.Controllers
         {
             _context = context;
         }
+
         [HttpPost("addcategorywithactivities")]
         public async Task<IActionResult> AddCategoryWithActivities([FromBody] CategoryWithActivitiesRequest request)
         {
@@ -50,6 +51,7 @@ namespace FindActivityApi.Controllers
                     return await _context.Categories.ToListAsync();
                 }*/
 
+        // imp!!!
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoryResponse>>> GetCategories()
         {

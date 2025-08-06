@@ -36,6 +36,8 @@ namespace FindActivityApi.Controllers
 
             };
         }
+
+        // imp!!!
         [HttpGet("Favourites/{sortBy}")]
         public async Task<IActionResult> GetFavouritesEvents(string sortBy)
         {
@@ -136,6 +138,8 @@ namespace FindActivityApi.Controllers
 
             return NoContent();
         }
+
+        // imp!!!
         // POST: api/Evnts
         [HttpPost]
         public IActionResult PostEvnt(EvntRequest evntRequest)
@@ -159,6 +163,7 @@ namespace FindActivityApi.Controllers
             return Ok(evnt.EvntId);
         }
 
+        // imp!!!
         [HttpPut("upload-event-image")]
         public async Task<IActionResult> UploadEventImage([FromForm] int evntId, IFormFile file)
         {

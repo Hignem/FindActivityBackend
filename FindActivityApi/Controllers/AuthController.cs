@@ -21,7 +21,7 @@ namespace FindActivityApi.Controllers
             _userManager = userManager;
             _configuration = configuration;
         }
-
+        // imp!!!
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
@@ -43,6 +43,7 @@ namespace FindActivityApi.Controllers
             return BadRequest(result.Errors);
         }
 
+        // imp!!!
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
@@ -65,6 +66,7 @@ namespace FindActivityApi.Controllers
             return Unauthorized();
         }
 
+        // imp!!!
         private string GenerateJwtToken(User user)
         {
             var jwtSettings = _configuration.GetSection("JwtSettings");

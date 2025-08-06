@@ -73,6 +73,7 @@ namespace FindActivityApi.Controllers
             return activityResponse;
         }
 
+        // imp!!!
         [HttpGet("category/{categoryid}")]
         public async Task<ActionResult<ActivityResponse>> GetActivitiesFromCategory(int categoryid)
         {

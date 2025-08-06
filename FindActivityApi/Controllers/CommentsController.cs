@@ -36,6 +36,7 @@ namespace FindActivityApi.Controllers
             };
         }
 
+        // imp!!!
         [HttpGet("{idEvent}/count")]
         public async Task<IActionResult> GetCommentCount(int idEvent)
         {
@@ -136,15 +137,16 @@ namespace FindActivityApi.Controllers
 
         // POST: api/Comments
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-/*        [HttpPost]
-        public async Task<ActionResult<Comment>> PostComment(Comment comment)
-        {
-            _context.Comments.Add(comment);
-            await _context.SaveChangesAsync();
+        /*        [HttpPost]
+                public async Task<ActionResult<Comment>> PostComment(Comment comment)
+                {
+                    _context.Comments.Add(comment);
+                    await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetComment", new { id = comment.CommentId }, comment);
-        }*/
+                    return CreatedAtAction("GetComment", new { id = comment.CommentId }, comment);
+                }*/
 
+        // imp!!!
         [HttpPost]
         public void PostComment(CommentRequest commentRequest)
         {

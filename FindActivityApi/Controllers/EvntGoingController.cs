@@ -25,6 +25,7 @@ namespace FindActivityApi.Controllers
             _context = context;
         }
 
+        // imp!!!
         [HttpGet("{idEvent}/goingInfo")]
         public async Task<IActionResult> GetEventGoing(int idEvent)
         {
@@ -43,6 +44,7 @@ namespace FindActivityApi.Controllers
             });
         }
 
+        // imp!!!
         [HttpGet("{evntId}/goingInfoList")]
         public async Task<ActionResult<IEnumerable<EvntGoingResponse>>> GetEventGoingList(int evntId)
         {
@@ -60,6 +62,7 @@ namespace FindActivityApi.Controllers
             return Ok(going);
         }
 
+        // imp!!!
         [HttpPost("{idEvent}")]
         public void AddGoing(int idEvent)
         {
@@ -73,6 +76,8 @@ namespace FindActivityApi.Controllers
             _context.EvntGoing.Add(evntGoing);
             _context.SaveChanges();
         }
+
+        // imp!!!
         // DELETE: api/Comments/5
         [HttpDelete("{idEvent}")]
         public async Task<IActionResult> DeleteGoing(int idEvent)
