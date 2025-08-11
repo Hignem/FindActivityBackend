@@ -23,6 +23,7 @@ namespace FindActivityApi.Controllers
         {
             _context = context;
         }
+
         private static EvntResponse toEvntResponse(Evnt evnt)
         {
             return new EvntResponse()
@@ -31,58 +32,119 @@ namespace FindActivityApi.Controllers
                 UserId = evnt.UserId,
                 ActivityId = evnt.ActivityId,
                 Title = evnt.Title,
-                Content = evnt.Content, 
-                CreatedAt = evnt.CreatedAt
-
+                Content = evnt.Content,
+                CreatedAt = evnt.CreatedAt,
+                DateOfEvnt = evnt.DateOfEvnt,
+                EvntImagePath = evnt.EvntImagePath,
+                LatitudeX = evnt.LatitudeX,
+                LongitudeY = evnt.LongitudeY,
+                CreatedByFirstName = evnt.User.Name,
+                CreatedByLastName = evnt.User.Surname,
+                ProfileImagePath = evnt.User.ProfileImagePath
             };
         }
+        //// imp!!!
+        //[HttpGet("Favourites/{sortBy}")]
+        //public async Task<IActionResult> GetFavouritesEvents(string sortBy)
+        //{
+
+        //    var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+        //    var observedEvents = _context.Evnts
+        //        .Where(e => _context.UserActivities
+        //            .Any(ua => ua.UserId == userId && ua.ActivityId == e.ActivityId))
+        //        .Select(e => new EvntResponse
+        //        {
+        //            EvntId = e.EvntId,
+        //            UserId = e.UserId,
+        //            ActivityId = e.ActivityId,
+        //            Title = e.Title,
+        //            Content = e.Content,
+        //            CreatedAt = e.CreatedAt,
+        //            DateOfEvnt = e.DateOfEvnt,
+        //            EvntImagePath = e.EvntImagePath,
+        //            LatitudeX = e.LatitudeX,
+        //            LongitudeY = e.LongitudeY,
+        //            CreatedByFirstName = e.User.Name,
+        //            CreatedByLastName = e.User.Surname,
+        //            ProfileImagePath = e.User.ProfileImagePath
+        //        });
+
+        //    if (sortBy == "newest")
+        //    {
+        //        observedEvents = observedEvents.OrderByDescending(e => e.CreatedAt);
+        //    }
+        //    if (sortBy == "closetoyou")
+        //    {
+        //        observedEvents = observedEvents.OrderByDescending(e => e.CreatedAt);
+        //    }
+        //    else if (sortBy == "upcoming")
+        //    {
+        //        observedEvents = observedEvents
+        //            .Where(e => e.DateOfEvnt >= DateTime.UtcNow)
+        //            .OrderBy(e => e.DateOfEvnt);
+        //    }
+
+        //    var observedEventsEnd = await observedEvents.ToListAsync();
+
+        //    return Ok(observedEventsEnd);
+        //}
 
         // imp!!!
         [HttpGet("Favourites/{sortBy}")]
         public async Task<IActionResult> GetFavouritesEvents(string sortBy)
         {
-
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-            var observedEvents = _context.Evnts
+            var query = _context.Evnts
+                .Include(e => e.User)
                 .Where(e => _context.UserActivities
                     .Any(ua => ua.UserId == userId && ua.ActivityId == e.ActivityId))
-                .Select(e => new EvntResponse
-                {
-                    EvntId = e.EvntId,
-                    UserId = e.UserId,
-                    ActivityId = e.ActivityId,
-                    Title = e.Title,
-                    Content = e.Content,
-                    CreatedAt = e.CreatedAt,
-                    DateOfEvnt = e.DateOfEvnt,
-                    EvntImagePath = e.EvntImagePath,
-                    LatitudeX = e.LatitudeX,
-                    LongitudeY = e.LongitudeY,
-                    CreatedByFirstName = e.User.Name,
-                    CreatedByLastName = e.User.Surname,
-                    ProfileImagePath = e.User.ProfileImagePath
-                });
+                .AsQueryable();
 
             if (sortBy == "newest")
             {
-                observedEvents = observedEvents.OrderByDescending(e => e.CreatedAt);
+                query = query.OrderByDescending(e => e.CreatedAt);
             }
-            if (sortBy == "closetoyou")
+            else if (sortBy == "closetoyou")
             {
-                observedEvents = observedEvents.OrderByDescending(e => e.CreatedAt);
+                query = query.OrderByDescending(e => e.CreatedAt);
             }
             else if (sortBy == "upcoming")
             {
-                observedEvents = observedEvents
+                query = query
                     .Where(e => e.DateOfEvnt >= DateTime.UtcNow)
-                    .OrderBy(e => e.DateOfEvnt); 
+                    .OrderBy(e => e.DateOfEvnt);
             }
 
-            var observedEventsEnd = await observedEvents.ToListAsync();
+            var result = await query
+                .Select(e => toEvntResponse(e))
+                .ToListAsync();
 
-            return Ok(observedEventsEnd);
+            return Ok(result);
         }
+
+        //imp!!!
+        [HttpGet("Search")]
+        public async Task<IActionResult> SearchEvents(string? title)
+        {
+            var query = _context.Evnts
+                .Include(e => e.User)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                var loweredTitle = title.ToLower();
+                query = query.Where(e => e.Title.ToLower().Contains(loweredTitle));
+            }
+
+            var result = await query
+                .Select(e => toEvntResponse(e))
+                .ToListAsync();
+
+            return Ok(result);
+        }
+
 
         // GET: api/Evnts
         [HttpGet]
