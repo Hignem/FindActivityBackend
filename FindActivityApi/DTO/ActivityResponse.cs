@@ -12,5 +12,7 @@ namespace FindActivityApi.DTO
 
         public int CategoryId { get; set; }
 
+        public bool IsClicked { get; set; }
+
     }
 }

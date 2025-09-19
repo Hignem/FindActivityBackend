@@ -126,7 +126,7 @@ namespace FindActivityApi.Controllers
 
         //imp!!!
         [HttpGet("Search")]
-        public async Task<IActionResult> SearchEvents(string? title)
+        public async Task<IActionResult> SearchEvents(string? title, string? activityIds)
         {
             var query = _context.Evnts
                 .Include(e => e.User)
@@ -136,6 +136,14 @@ namespace FindActivityApi.Controllers
             {
                 var loweredTitle = title.ToLower();
                 query = query.Where(e => e.Title.ToLower().Contains(loweredTitle));
+            }
+
+            if (!string.IsNullOrWhiteSpace(activityIds))
+            {
+                var ids = activityIds.Split(',')
+                                     .Select(int.Parse)
+                                     .ToList();
+                query = query.Where(e => ids.Contains(e.ActivityId));
             }
 
             var result = await query

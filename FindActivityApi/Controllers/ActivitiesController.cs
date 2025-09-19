@@ -23,7 +23,7 @@ namespace FindActivityApi.Controllers
             _context = context;
         }
 
-        private static ActivityResponse toActivityResponse(Activity activity)
+        public static ActivityResponse toActivityResponse(Activity activity)
         {
             return new ActivityResponse()
             {

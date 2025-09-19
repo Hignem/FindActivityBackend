@@ -9,6 +9,8 @@ using FindActivityApi.Models;
 using FindActivityApi.DTO;
 using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
+using FindActivityApi.Controllers;
+using System.Security.Claims;
 
 namespace FindActivityApi.Controllers
 {
@@ -44,6 +46,18 @@ namespace FindActivityApi.Controllers
                 CategoryName = category.CategoryName
             };
         }
+        private static CategoryWithActivitiesResponse toCategoryResponseWithActivities(Category category)
+        {
+            return new CategoryWithActivitiesResponse()
+            {
+                CategoryId = category.CategoryId,
+                CategoryName = category.CategoryName,
+                Activities = category.Activities?
+                    .Select(a => ActivitiesController.toActivityResponse(a))
+                    .ToList()
+            };
+        }
+
         // GET: api/Categories
         /*        [HttpGet]
                 public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
@@ -71,6 +85,48 @@ namespace FindActivityApi.Controllers
 
                     return category;
                 }*/
+
+        [HttpGet("categories-with-activities")]
+        public async Task<ActionResult<IEnumerable<CategoryWithActivitiesResponse>>> GetCategoriesWithActivities()
+        {
+            var categories = await _context.Categories
+                .Include(c => c.Activities) 
+                .ToListAsync();
+
+            return categories
+                .Select(c => toCategoryResponseWithActivities(c))
+                .ToList();
+        }
+
+        [HttpGet("fav-user-categories-with-activities")]
+        public async Task<ActionResult<IEnumerable<CategoryWithActivitiesResponse>>> GetFavUserCategoriesWithActivities()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            var userActivityIds = await _context.UserActivities
+                .Where(ua => ua.UserId == userId)
+                .Select(ua => ua.ActivityId)
+                .ToListAsync();
+
+            var categories = await _context.Categories
+                .Include(c => c.Activities)
+                .ToListAsync();
+
+            return categories
+                .Select(c => new CategoryWithActivitiesResponse
+                {
+                    CategoryId = c.CategoryId,
+                    CategoryName = c.CategoryName,
+                    Activities = c.Activities.Select(a => new ActivityResponse
+                    {
+                        ActivityId = a.ActivityId,
+                        ActivityName = a.ActivityName,
+                        IsClicked = userActivityIds.Contains(a.ActivityId),
+                    }).ToList()
+                })
+                .ToList();
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoryResponse>> GetCategory(int id)
         {
