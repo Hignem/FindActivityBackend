@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using FindActivityApi.Models;
 using FindActivityApi.DTO;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace FindActivityApi.Controllers
 {
@@ -114,15 +115,22 @@ namespace FindActivityApi.Controllers
                     return CreatedAtAction("GetUserActivity", new { id = userActivity.UserActivityId }, userActivity);
                 }*/
         [HttpPost]
-        public void PostUserActivity(UserActivityResponse useractivityRequest)
+        public async Task<IActionResult> PostUserActivities([FromBody] List<int> activityIds)
         {
-            var useractivity = new UserActivity()
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            var existing = _context.UserActivities.Where(ua => ua.UserId == userId);
+            _context.UserActivities.RemoveRange(existing);
+
+            var newActivities = activityIds.Select(id => new UserActivity
             {
-                UserId = useractivityRequest.UserId,
-                ActivityId = useractivityRequest.ActivityId,
-            };
-            _context.UserActivities.Add(useractivity);
-            _context.SaveChanges();
+                UserId = userId,
+                ActivityId = id
+            });
+            _context.UserActivities.AddRange(newActivities);
+
+            await _context.SaveChangesAsync();
+            return Ok();
         }
         // DELETE: api/UserActivities/5
         [HttpDelete("{id}")]

@@ -6,5 +6,7 @@
         public string CategoryName { get; set; }
 
         public List<ActivityResponse> Activities { get; set; }
+
+        public bool HaveFavActivity { get; set; }
     }
 }

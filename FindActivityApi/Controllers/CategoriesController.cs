@@ -122,7 +122,8 @@ namespace FindActivityApi.Controllers
                         ActivityId = a.ActivityId,
                         ActivityName = a.ActivityName,
                         IsClicked = userActivityIds.Contains(a.ActivityId),
-                    }).ToList()
+                    }).ToList(),
+                    HaveFavActivity = c.Activities.Any(a => userActivityIds.Contains(a.ActivityId))
                 })
                 .ToList();
         }
