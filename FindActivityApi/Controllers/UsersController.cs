@@ -82,6 +82,43 @@ namespace FindActivityApi.Controllers
             return Ok(new { message = "Email został zaktualizowany pomyślnie." });
         }
 
+        public class UpdatePasswordRequest
+        {
+            public string CurrentPassword { get; set; }
+            public string NewPassword { get; set; }
+        }
+
+        [HttpPost("update-password")]
+        public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordRequest request)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int userId;
+            if (!int.TryParse(userIdString, out userId))
+            {
+                return Unauthorized("Niepoprawny token.");
+            }
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("Użytkownik nie został znaleziony.");
+            }
+
+            var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, request.CurrentPassword);
+            if (!isPasswordCorrect)
+            {
+                return BadRequest("Niepoprawne hasło.");
+            }
+            var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return Ok(new { message = "Hasło zostało zaktualizowane pomyślnie." });
+        }
+
         [HttpPost("upload-profile-image")]
         public async Task<IActionResult> UploadProfileImage(IFormFile file)
         {
