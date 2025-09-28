@@ -10,6 +10,7 @@ using FindActivityApi.DTO;
 using Microsoft.AspNetCore.Authorization;
 using System.Xml.Linq;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace FindActivityApi.Controllers
 {
@@ -19,10 +20,11 @@ namespace FindActivityApi.Controllers
     public class UsersController : ControllerBase
     {
         private readonly ApiDbContext _context;
-
-        public UsersController(ApiDbContext context)
+        private readonly UserManager<User> _userManager;
+        public UsersController(ApiDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
         private static UserResponse toUserResponse(User user)
         {
@@ -40,16 +42,54 @@ namespace FindActivityApi.Controllers
 
             };
         }
+        public class UpdateEmailRequest
+        {
+            public string CurrentPassword { get; set; }
+            public string NewEmail { get; set; }
+        }
+
+        [HttpPost("update-email")]
+        public async Task<IActionResult> UpdateEmail([FromBody] UpdateEmailRequest request)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int userId;
+
+            if (!int.TryParse(userIdString, out userId))
+            {
+                return Unauthorized("Niepoprawny token.");
+            }
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("Użytkownik nie został znaleziony.");
+            }
+
+            var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, request.CurrentPassword);
+            if (!isPasswordCorrect)
+            {
+                return BadRequest("Niepoprawne hasło.");
+            }
+
+            var token = await _userManager.GenerateChangeEmailTokenAsync(user, request.NewEmail);
+            var result = await _userManager.ChangeEmailAsync(user, request.NewEmail, token);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return Ok(new { message = "Email został zaktualizowany pomyślnie." });
+        }
+
         [HttpPost("upload-profile-image")]
         public async Task<IActionResult> UploadProfileImage(IFormFile file)
         {
-            // sprawdzenie czy uzytkownik przeslal zdjecie
             if (file == null || file.Length == 0)
             {
                 return BadRequest("Plik jest pusty.");
             }
 
-            //przypisanie docelowej sciezki
             var uploadsFolder = Path.Combine("wwwroot", "images", "profiles");
             Directory.CreateDirectory(uploadsFolder);
 
@@ -63,7 +103,6 @@ namespace FindActivityApi.Controllers
 
             var imagePath = $"/images/profiles/{fileName}";
 
-            // Zapisujemy ścieżkę w bazie
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var user = await _context.Users.FindAsync(userId);
             if (user == null)
@@ -71,7 +110,6 @@ namespace FindActivityApi.Controllers
                 return NotFound("Użytkownik nie znaleziony.");
             }
 
-            //deleting old profile picture
             if (!string.IsNullOrEmpty(user.ProfileImagePath))
             {
                 var oldImagePath = Path.Combine("wwwroot", user.ProfileImagePath.TrimStart('/'));
@@ -94,12 +132,6 @@ namespace FindActivityApi.Controllers
             return Ok(new { imagePath });
         }
 
-        // GET: api/Users
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<User>>> GetUsers()
-        //{
-        //    return await _context.Users.ToListAsync();
-        //}
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserResponse>>> GetUsers()
         {
