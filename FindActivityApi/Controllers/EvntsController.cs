@@ -24,13 +24,14 @@ namespace FindActivityApi.Controllers
             _context = context;
         }
 
-        private static EvntResponse toEvntResponse(Evnt evnt)
+        private static EvntResponse toEvntResponse(Evnt evnt, int currentUserId)
         {
             return new EvntResponse()
             {
                 EvntId = evnt.EvntId,
                 UserId = evnt.UserId,
                 ActivityId = evnt.ActivityId,
+                CategoryId = evnt.Activity.CategoryId,
                 Title = evnt.Title,
                 Content = evnt.Content,
                 CreatedAt = evnt.CreatedAt,
@@ -40,7 +41,8 @@ namespace FindActivityApi.Controllers
                 LongitudeY = evnt.LongitudeY,
                 CreatedByFirstName = evnt.User.Name,
                 CreatedByLastName = evnt.User.Surname,
-                ProfileImagePath = evnt.User.ProfileImagePath
+                ProfileImagePath = evnt.User.ProfileImagePath,
+                IsOwner = evnt.UserId == currentUserId,
             };
         }
         //// imp!!!
@@ -98,6 +100,7 @@ namespace FindActivityApi.Controllers
 
             var query = _context.Evnts
                 .Include(e => e.User)
+                .Include(e => e.Activity)
                 .Where(e => _context.UserActivities
                     .Any(ua => ua.UserId == userId && ua.ActivityId == e.ActivityId))
                 .AsQueryable();
@@ -118,7 +121,7 @@ namespace FindActivityApi.Controllers
             }
 
             var result = await query
-                .Select(e => toEvntResponse(e))
+                .Select(e => toEvntResponse(e, userId))
                 .ToListAsync();
 
             return Ok(result);
@@ -128,8 +131,11 @@ namespace FindActivityApi.Controllers
         [HttpGet("Search")]
         public async Task<IActionResult> SearchEvents(string? title, string? activityIds)
         {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
             var query = _context.Evnts
                 .Include(e => e.User)
+                                .Include(e => e.Activity)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(title))
@@ -147,67 +153,35 @@ namespace FindActivityApi.Controllers
             }
 
             var result = await query
-                .Select(e => toEvntResponse(e))
+                .Select(e => toEvntResponse(e, userId))
                 .ToListAsync();
 
             return Ok(result);
         }
 
 
-        // GET: api/Evnts
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<EvntResponse>>> GetEvnts()
-        {
-            return await _context.Evnts.Select(
-                evnt => toEvntResponse(evnt)
-                ).ToListAsync();
-        }
-        // GET: api/Evnts/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EvntResponse>> GetEvnt(int id)
-        {
-            var evnt = await _context.Evnts.FindAsync(id);
+        //// GET: api/Evnts
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<EvntResponse>>> GetEvnts()
+        //{
+        //    return await _context.Evnts.Select(
+        //        evnt => toEvntResponse(evnt)
+        //        ).ToListAsync();
+        //}
+        //// GET: api/Evnts/5
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<EvntResponse>> GetEvnt(int id)
+        //{
+        //    var evnt = await _context.Evnts.FindAsync(id);
 
-            if (evnt == null)
-            {
-                return NotFound();
-            }
-            EvntResponse evntResponse = toEvntResponse(evnt);
-            return evntResponse;
-        }
-        // PUT: api/Evnts/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutEvnt(int id, EvntRequest evntRequest)
-        {
-            var evnt = await _context.Evnts.FindAsync(id);
-            if (evnt == null)
-            {
-                return NotFound();
-            }
-
-            //evnt.UserId = evntRequest.UserId;
-            evnt.ActivityId = evntRequest.ActivityId;
-            evnt.Title = evntRequest.Title;
-            evnt.Content = evntRequest.Content;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!EvntExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
+        //    if (evnt == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    EvntResponse evntResponse = toEvntResponse(evnt);
+        //    return evntResponse;
+        //}
+      
 
         // imp!!!
         // POST: api/Evnts
@@ -232,7 +206,34 @@ namespace FindActivityApi.Controllers
 
             return Ok(evnt.EvntId);
         }
+        // imp!!!
+        [HttpPut("{evntId}")]
+        public async Task<IActionResult> UpdateEvnt(int evntId, [FromBody] EvntRequest evntRequest)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
+            var evnt = await _context.Evnts.FindAsync(evntId);
+            if (evnt == null)
+            {
+                return NotFound("Wydarzenie nie zostało znalezione.");
+            }
+
+            if (evnt.UserId != userId)
+            {
+                return Forbid("Nie masz uprawnień do edycji tego wydarzenia.");
+            }
+
+            evnt.ActivityId = evntRequest.ActivityId;
+            evnt.Title = evntRequest.Title;
+            evnt.Content = evntRequest.Content;
+            evnt.DateOfEvnt = evntRequest.DateOfEvnt;
+            evnt.LatitudeX = evntRequest.LatitudeX;
+            evnt.LongitudeY = evntRequest.LongitudeY;
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Wydarzenie zostało zaktualizowane.");
+        }
         // imp!!!
         [HttpPut("upload-event-image")]
         public async Task<IActionResult> UploadEventImage([FromForm] int evntId, IFormFile file)
@@ -288,6 +289,38 @@ namespace FindActivityApi.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { imagePath });
+        }
+        // imp!!!
+        [HttpDelete("delete-event-image/{evntId}")]
+        public async Task<IActionResult> DeleteEventImage(int evntId)
+        {
+            var evnt = await _context.Evnts.FindAsync(evntId);
+            if (evnt == null)
+            {
+                return NotFound("Wydarzenie nie zostało znalezione.");
+            }
+
+            if (string.IsNullOrEmpty(evnt.EvntImagePath))
+            {
+                return BadRequest("To wydarzenie nie ma przypisanego zdjęcia.");
+            }
+            var fullImagePath = Path.Combine("wwwroot", evnt.EvntImagePath.TrimStart('/'));
+            if (System.IO.File.Exists(fullImagePath))
+            {
+                try
+                {
+                    System.IO.File.Delete(fullImagePath);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, $"Błąd przy usuwaniu pliku: {ex.Message}");
+                }
+            }
+
+            evnt.EvntImagePath = "";
+            await _context.SaveChangesAsync();
+
+            return Ok("Zdjęcie zostało usunięte.");
         }
 
         // DELETE: api/Evnts/5

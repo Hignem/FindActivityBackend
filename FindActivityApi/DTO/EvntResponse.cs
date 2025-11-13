@@ -11,6 +11,7 @@ namespace FindActivityApi.DTO
         public int UserId { get; set; }
 
         public int ActivityId { get; set; }
+        public int CategoryId { get; set; }
 
         public string Title { get; set; }
 
@@ -24,6 +25,8 @@ namespace FindActivityApi.DTO
         public string CreatedByFirstName { get; set; }
         public string CreatedByLastName { get; set; }
         public string ProfileImagePath { get; set; } = "";
+        public bool IsOwner { get; set; }
+
 
 
     }
