@@ -206,6 +206,30 @@ namespace FindActivityApi.Controllers
 
             return Ok(evnt.EvntId);
         }
+
+        // imp!!!
+        [HttpDelete("{evntId}")]
+        public async Task<IActionResult> DeleteEvnt(int evntId)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            var evnt = await _context.Evnts.FindAsync(evntId);
+            if (evnt == null)
+            {
+                return NotFound("Wydarzenie nie zostało znalezione.");
+            }
+
+            if (evnt.UserId != userId)
+            {
+                return Forbid("Nie masz uprawnień do usunięcia tego wydarzenia.");
+            }
+
+            _context.Evnts.Remove(evnt);
+            await _context.SaveChangesAsync();
+
+            return Ok("Wydarzenie zostało usunięte.");
+        }
+
         // imp!!!
         [HttpPut("{evntId}")]
         public async Task<IActionResult> UpdateEvnt(int evntId, [FromBody] EvntRequest evntRequest)
@@ -300,10 +324,10 @@ namespace FindActivityApi.Controllers
                 return NotFound("Wydarzenie nie zostało znalezione.");
             }
 
-            if (string.IsNullOrEmpty(evnt.EvntImagePath))
-            {
-                return BadRequest("To wydarzenie nie ma przypisanego zdjęcia.");
-            }
+            //if (string.IsNullOrEmpty(evnt.EvntImagePath))
+            //{
+            //    return BadRequest("To wydarzenie nie ma przypisanego zdjęcia.");
+            //}
             var fullImagePath = Path.Combine("wwwroot", evnt.EvntImagePath.TrimStart('/'));
             if (System.IO.File.Exists(fullImagePath))
             {
@@ -321,26 +345,6 @@ namespace FindActivityApi.Controllers
             await _context.SaveChangesAsync();
 
             return Ok("Zdjęcie zostało usunięte.");
-        }
-
-        // DELETE: api/Evnts/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEvnt(int id)
-        {
-            var evnt = await _context.Evnts.FindAsync(id);
-            if (evnt == null)
-            {
-                return NotFound();
-            }
-
-            _context.Evnts.Remove(evnt);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-        private bool EvntExists(int id)
-        {
-            return _context.Evnts.Any(e => e.EvntId == id);
         }
     }
 
